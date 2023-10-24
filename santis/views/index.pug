@@ -1,0 +1,21 @@
+doctype html
+html(lang='en')
+	head
+		meta(charset='utf-8')
+		meta(name='viewport' content='width=device-width, initial-scale=1')
+		title Project Santis 
+	// CSS overrides - remove if you don't need it
+	//-link(rel='stylesheet' href='css/app.css')
+	body
+		h1 Hello world form santis
+#container
+		form(hx-post="/test", hx-target="#tester")
+			input.new-item(name="test", placeholder="do a little ping")
+			.edit-buttons
+			button.edit-button(type='submit') Ping
+#tester
+
+
+
+		script(src='https://unpkg.com/htmx.org@1.3.1')
+		script(src="https://unpkg.com/hyperscript.org@0.0.8")
