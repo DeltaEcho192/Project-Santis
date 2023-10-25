@@ -9,8 +9,18 @@ html(lang='en')
 	body
 		h1 Hello world form santis
 #container
-		form(hx-post="/test", hx-target="#tester")
-			input.new-item(name="test", placeholder="do a little ping")
+		form#item_add(hx-post="/test", hx-target="#tester")
+			input.item_name(name="item_name", placeholder="Item Name")
+			input.size(name="size", placeholder="Size")
+			input.weight(name="weight", placeholder="Weight")
+			input.value(name="value", placeholder="Value")
+			label.pack  Packed
+			input.packed(name="packed", type="checkbox", placeholder="Packed")
+			label.category Category
+			select.cat(form="item_add", name="category")
+				each cat in cats 
+					option(value=cat)=cat
+			input.sub_cat(name="sub_category", placeholder="Sub-Category")
 			.edit-buttons
 			button.edit-button(type='submit') Ping
 #tester
