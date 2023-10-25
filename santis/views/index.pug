@@ -9,7 +9,7 @@ html(lang='en')
 	body
 		h1 Hello world form santis
 #container
-		form#item_add(hx-post="/test", hx-target="#tester")
+		form#item_add(hx-post="/items", hx-target="#item_list" hx-swap="afterbegin")
 			input.item_name(name="item_name", placeholder="Item Name")
 			input.size(name="size", placeholder="Size")
 			input.weight(name="weight", placeholder="Weight")
@@ -25,7 +25,8 @@ html(lang='en')
 			button.edit-button(type='submit') Ping
 #tester
 
-
+		ul#item_list.item_list
+			include includes/item_list
 
 		script(src='https://unpkg.com/htmx.org@1.3.1')
 		script(src="https://unpkg.com/hyperscript.org@0.0.8")

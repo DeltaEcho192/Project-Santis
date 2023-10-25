@@ -21,13 +21,18 @@ let db = new sqlite3.Database("santis.db" , (err) => {
     } 
 })
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 	values = ["test1", "test2"]
-	res.render('index', {cats: values})
+	static = []
+	sql = "SELECT item_id, item_name FROM items;"
+	db.all(sql, [], (err, rows) => {
+		if (err)
+			throw err
+		res.render('index', {cats: values, items: rows})
+	})
 });
 
-app.post('/test', (req, res) => {
-	console.log(req.body.item_name)
+app.post('/items', (req, res) => {
 	let id = uuid();
 	console.log(id)
 	let r = req.body;
@@ -51,11 +56,15 @@ app.post('/test', (req, res) => {
 	} catch (e) {
 		res.send("<p>Error</p>")
 	}
-	res.send("<p>Success</p>")
-});
 
-app.post('/save', (req, res) => {
-	
+	let item_new = {
+		id: id,
+		item_name: r.item_name 
+	}
+
+	let template = pug.compileFile('views/includes/item.pug');
+	let markup = template({item: item_new})
+	res.send(markup)
 })
 
 app.listen(PORT);
