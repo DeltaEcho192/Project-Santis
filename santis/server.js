@@ -32,6 +32,15 @@ app.get('/', async (req, res) => {
 	})
 });
 
+app.get('/list', async (req, res) => {
+	sql = "SELECT item_id, item_name FROM items;"
+	db.all(sql, [], (err, rows) => {
+		if (err)
+			throw err
+		res.render('list', {items: rows})
+	})
+});
+
 app.post('/items', (req, res) => {
 	let id = uuid();
 	console.log(id)
@@ -42,6 +51,7 @@ app.post('/items', (req, res) => {
 		r.packed = false;
 	}
 	console.log(r.packed)
+	let status_message = "Success"
 	try {
 	db.run("INSERT INTO items ('item_id', 'item_name', 'size', 'weight', 'value', 'packed', 'category', 'sub_category') VALUES ($id, $item_name, $size, $weight, $value, $packed, $category, $sub_category);", 
 		{$id:id,
@@ -54,16 +64,11 @@ app.post('/items', (req, res) => {
 			$sub_category: r.sub_category});
 
 	} catch (e) {
-		res.send("<p>Error</p>")
+		status_message = "Error"
 	}
 
-	let item_new = {
-		id: id,
-		item_name: r.item_name 
-	}
-
-	let template = pug.compileFile('views/includes/item.pug');
-	let markup = template({item: item_new})
+	let template = pug.compileFile('views/includes/enter_message.pug');
+	let markup = template({status_message: status_message})
 	res.send(markup)
 })
 

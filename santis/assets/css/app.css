@@ -1,0 +1,107 @@
+body {
+	font-family: Roboto;
+}
+
+#item_add {
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+
+#container {
+	text-align: center
+}
+
+.form_input {
+	padding: 0.5rem 
+}
+
+input {
+	width: 100%;
+	padding: 0.3rem;
+	display: inline-block;
+}
+
+.label {
+	text-align: left;
+	margin-bottom: 5px;
+	font-size: 11px;
+}
+
+.form_input#cat {
+      display: flex;
+      justify-content: space-between;
+}
+
+.form_input#packedin {
+      display: flex;
+      justify-content: space-evenly;
+}
+
+#category {
+	width: 100px;
+	padding-left: 4rem;
+	padding-right: 4rem;
+	padding-top: 0.2rem;
+	padding-bottom: 0.2rem;
+	background: white;
+	border-color: gray;
+	border-width: 1px;
+	border-radius: 5px;
+
+}
+
+#packed {
+	width: auto;
+}
+
+#packed_around {
+	width: 100%;
+	text-align: right;
+}
+
+.edit-button {
+	margin: 1rem;
+	border: 1px;
+	padding: 1rem;
+	padding-left: 2rem;
+	padding-right: 2rem;
+	border-radius: 5px;
+}
+
+.form_label {
+	font-size: 12px;
+}
+
+.Heading {
+	float: right;
+	font-weight: bolder;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+  background-color: #111;
+}
+
+#status {
+	text-align: center
+}

@@ -4,29 +4,55 @@ html(lang='en')
 		meta(charset='utf-8')
 		meta(name='viewport' content='width=device-width, initial-scale=1')
 		title Project Santis 
-	// CSS overrides - remove if you don't need it
-	//-link(rel='stylesheet' href='css/app.css')
+		link(rel='stylesheet' href='css/app.css')
+		link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto")
 	body
-		h1 Hello world form santis
+	div
+		ul
+			li 
+				a(href="/") Home
+			li
+				a(href="/list") List
+			li.Heading
+				a Project Santis
 #container
-		form#item_add(hx-post="/items", hx-target="#item_list" hx-swap="afterbegin")
-			input.item_name(name="item_name", placeholder="Item Name")
-			input.size(name="size", placeholder="Size")
-			input.weight(name="weight", placeholder="Weight")
-			input.value(name="value", placeholder="Value")
-			label.pack  Packed
-			input.packed(name="packed", type="checkbox", placeholder="Packed")
-			label.category Category
-			select.cat(form="item_add", name="category")
-				each cat in cats 
-					option(value=cat)=cat
-			input.sub_cat(name="sub_category", placeholder="Sub-Category")
+		form#item_add(hx-post="/items", hx-target="#status")
+			div.form_input
+				div.label
+					label.form_label Item Name 
+				input#item_name(name="item_name", placeholder="Item Name")
+			div.form_input
+				div.label
+					label.form_label Item Size 
+				input#size(name="size", placeholder="Size")
+			div.form_input
+				div.label
+					label.form_label Item Weight 
+				input#weight(name="weight", placeholder="Weight")
+			div.form_input
+				div.label
+					label.form_label Item Value 
+				input#value(name="value", placeholder="Value")
+			div.form_input#packedin
+				label.form_label Packed
+				div#packed_around
+					input#packed(name="packed", type="checkbox", placeholder="Packed")
+			div.form_input#cat
+				label.form_label Category
+				select#category(form="item_add", name="category")
+					each cat in cats 
+						option(value=cat)=cat
+			div.form_input
+				div.label
+					label.form_label Sub Category
+				input#sub_cat(name="sub_category", placeholder="Sub-Category")
 			.edit-buttons
-			button.edit-button(type='submit') Ping
-#tester
+			button.edit-button(type='submit') Add Item 
 
-		ul#item_list.item_list
-			include includes/item_list
+
+#status
+	include includes/enter_message
 
 		script(src='https://unpkg.com/htmx.org@1.3.1')
 		script(src="https://unpkg.com/hyperscript.org@0.0.8")
+
