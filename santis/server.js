@@ -22,7 +22,7 @@ let db = new sqlite3.Database("santis.db" , (err) => {
 })
 
 app.get('/', async (req, res) => {
-	values = ["test1", "test2"]
+	values = ["KEEP - Store", "KEEP - Take", "SELL", "DONATE"]
 	static = []
 	sql = "SELECT item_id, item_name FROM items;"
 	db.all(sql, [], (err, rows) => {

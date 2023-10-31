@@ -1,0 +1,18 @@
+version: '3.5'
+
+services:
+  santis:
+    build:
+      context: ./santis
+    depends_on:
+      - nginx
+    restart: always
+    ports:
+      - "2502:2502"
+    container_name: santis
+  nginx:
+    restart: always
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
