@@ -100,6 +100,7 @@ app.put('/item/:id', (req,res) => {
 	let template = pug.compileFile('views/includes/table_row.pug')
 	let markup = template({item: rt})
 	res.send(markup)
+	//res.sendStatus(200)
 })
 
 app.get('/item/:id', (req,res) => {
