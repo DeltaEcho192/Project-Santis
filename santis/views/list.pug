@@ -4,8 +4,7 @@ html(lang='en')
 		meta(charset='utf-8')
 		meta(name='viewport' content='width=device-width, initial-scale=1')
 		title Project Santis 
-	// CSS overrides - remove if you don't need it
-	//-link(rel='stylesheet' href='css/app.css')
+		link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/uikit@3.17.6/dist/css/uikit.min.css')
 	body
 		table.table-row-edit
 			thead
@@ -18,8 +17,13 @@ html(lang='en')
 				include includes/table_gen
 
 
-		script(src='https://unpkg.com/htmx.org@1.3.1')
-		script(src="https://unpkg.com/hyperscript.org@0.0.8")
+
+#modals-here
+
+script(src='https://unpkg.com/htmx.org@1.3.1')
+script(src="https://unpkg.com/hyperscript.org@0.9.12")
+script(src="https://cdn.jsdelivr.net/npm/uikit@3.17.6/dist/js/uikit.min.js")
+script(src="https://cdn.jsdelivr.net/npm/uikit@3.17.6/dist/js/uikit-icons.min.js")
 
 
 
