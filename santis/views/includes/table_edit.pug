@@ -1,0 +1,8 @@
+tr(hx-trigger='cancel' class='editing' hx-get=`/item/${item.item_id}`)
+	td
+		input(name="item_name" value=`${item.item_name}`)
+	td
+		input(name="category" value=`${item.category}`)
+	td
+		button(class="btn btn-danger" hx-get=`/item/${item.item_id}`) Cancel
+		button(class="btn btn-danger" hx-put=`/item/${item.item_id}` hx-include="closest tr") Save

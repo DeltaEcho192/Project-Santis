@@ -1,0 +1,8 @@
+tr
+	td=item.item_name
+	td=item.category
+	td
+		button(
+			class="btn btn-danger"
+			hx-get=`/item/${item.item_id}/edit`
+			) Edit

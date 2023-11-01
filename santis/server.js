@@ -33,7 +33,7 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/list', async (req, res) => {
-	sql = "SELECT item_id, item_name FROM items;"
+	sql = "SELECT item_id, item_name, category FROM items;"
 	db.all(sql, [], (err, rows) => {
 		if (err)
 			throw err
@@ -70,6 +70,49 @@ app.post('/items', (req, res) => {
 	let template = pug.compileFile('views/includes/enter_message.pug');
 	let markup = template({status_message: status_message})
 	res.send(markup)
+})
+
+app.get("/item/:id/edit", (req, res) => {
+	let sql = `SELECT item_id, item_name, category FROM items WHERE item_id=?;`
+	console.log(sql)
+	db.get(sql, [req.params.id], (err,rows) => {
+		if (err)
+			throw err
+		console.log("Rows: ", rows)
+		let template = pug.compileFile('views/includes/table_edit.pug')
+		let markup = template({item: rows})
+		res.send(markup)
+	})
+})
+
+app.put('/item/:id', (req,res) => {
+	console.log(req.body)
+	let sql = `UPDATE items set item_name=?, category=? WHERE item_id=?`
+	db.run(sql, [req.body.item_name, req.body.category, req.params.id], (err, rows) => {
+		if (err)
+			throw err
+	});
+	let rt = {
+		item_id: req.params.id,
+		item_name: req.body.item_name,
+		category: req.body.category
+	}
+	let template = pug.compileFile('views/includes/table_row.pug')
+	let markup = template({item: rt})
+	res.send(markup)
+})
+
+app.get('/item/:id', (req,res) => {
+	console.log(req.body)
+	let sql = `SELECT item_id, item_name, category FROM items WHERE item_id=?;`
+	db.get(sql, [req.params.id], (err,rows) => {
+		if (err)
+			throw err
+		console.log("Rows: ", rows)
+		let template = pug.compileFile('views/includes/table_row.pug')
+		let markup = template({item: rows})
+		res.send(markup)
+	});
 })
 
 app.listen(PORT);
