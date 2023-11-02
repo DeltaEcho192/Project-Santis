@@ -23,12 +23,12 @@ let db = new sqlite3.Database("santis.db" , (err) => {
 
 app.get('/', async (req, res) => {
 	values = ["KEEP - Store", "KEEP - Take", "SELL", "DONATE"]
-	static = []
+	static = ["SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"]
 	sql = "SELECT item_id, item_name FROM items;"
 	db.all(sql, [], (err, rows) => {
 		if (err)
 			throw err
-		res.render('index', {cats: values, items: rows})
+		res.render('index', {cats: values, items: rows, sizes: static})
 	})
 });
 

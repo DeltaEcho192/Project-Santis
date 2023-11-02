@@ -38,16 +38,28 @@ input {
 }
 
 #category {
-	width: 100px;
-	padding-left: 4rem;
-	padding-right: 4rem;
+	padding-left: 2rem;
+	padding-right: 2rem;
 	padding-top: 0.2rem;
 	padding-bottom: 0.2rem;
 	background: white;
 	border-color: gray;
 	border-width: 1px;
 	border-radius: 5px;
+	text-align-last: center;
 
+}
+
+#size {
+	padding-left: 1rem;
+	padding-right: 1rem;
+	padding-top: 0.2rem;
+	padding-bottom: 0.2rem;
+	background: white;
+	border-color: gray;
+	border-width: 1px;
+	border-radius: 5px;
+	text-align-last: center;
 }
 
 #packed {
