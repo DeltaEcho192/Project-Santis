@@ -6,7 +6,9 @@ div(id="modal" class="uk-modal" style="display:block;")
 		form(_="on submit take .uk-open from #modal")
 			div(class="uk-margin")
 				input(class="uk-input" placeholder="Item Name" value=`${item.item_name}` name="item_name")
-				input(class="uk-input" placeholder="Category" value=`${item.category}` name="category")
+				select#category(name="category")
+					each cat in cats 
+						option(value=cat)=cat
 			button(type="button" class="uk-button uk-button-primary" hx-put=`/item/${item.item_id}` 
 				hx-target=`#p${item.item_id}`
 				hx-swap="outerHTML"

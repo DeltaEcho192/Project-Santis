@@ -73,14 +73,16 @@ app.post('/items', (req, res) => {
 })
 
 app.get("/item/:id/edit", (req, res) => {
+	values = ["KEEP - Store", "KEEP - Take", "SELL", "DONATE"]
 	let sql = `SELECT item_id, item_name, category FROM items WHERE item_id=?;`
 	console.log(sql)
 	db.get(sql, [req.params.id], (err,rows) => {
 		if (err)
 			throw err
 		console.log("Rows: ", rows)
+		values.sort(function(x,y){ return x == rows.category ? -1 : y == rows.category ? 1 : 0; });
 		let template = pug.compileFile('views/includes/table_edit.pug')
-		let markup = template({item: rows})
+		let markup = template({item: rows, cats: values})
 		res.send(markup)
 	})
 })
