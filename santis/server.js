@@ -116,5 +116,16 @@ app.get('/item/:id', (req,res) => {
 	});
 })
 
+app.delete('/item/:id', (req,res) => {
+	console.log(req.body)
+	let sql = `DELETE FROM items WHERE item_id=?;`
+	db.run(sql, [req.params.id], (err,rows) => {
+		if (err)
+			throw err
+		console.log("Rows: ", rows)
+		res.send("")
+	});
+})
+
 app.listen(PORT);
 console.log("Santis is listening on port: " + PORT);

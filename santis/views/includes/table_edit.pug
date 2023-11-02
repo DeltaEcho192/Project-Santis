@@ -11,7 +11,12 @@ div(id="modal" class="uk-modal" style="display:block;")
 				hx-target=`#p${item.item_id}`
 				hx-swap="outerHTML"
 				_="on htmx:afterOnLoad wait 10ms then remove #modal"
-			) Save Changes
+			) Save
+			button(type="button" class="uk-button uk-button-primary" hx-delete=`/item/${item.item_id}` 
+				hx-target=`#p${item.item_id}`
+				hx-swap="outerHTML"
+				_="on htmx:afterOnLoad wait 10ms then remove #modal"
+			) DELETE 
 			button(
 				id="cancelButton"
 				type="button" 
