@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>Project Santis</title>
+	</head>
+<body>
+	<p> Hello, {{ name }} ! This is {{ computer }} </p>
+	<button hx-post="/test">Hello</button>
+	<ul>
+		{% for i in iter %}
+			<li>{% include "test.html" %}</li>
+		{% endfor %}
+	</ul>
+</body>
+<script src="https://unpkg.com/htmx.org@1.3.1"></script>
+<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+</html>
+
