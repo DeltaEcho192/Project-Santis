@@ -1,0 +1,5 @@
+<tr id="{{"p{}"|format(item.item_id)}}" >
+	<td>{{ item.item_name }}</td>	
+	<td>{{ item.category }}</td>	
+	<td><button id="showButton" hx-get="{{"/item/{}/edit"|format(item.item_id)}}" hx-target="#modals-here" hx-swap="inner-html" class="uk-button uk-button-primary" _="on htmx:afterOnLoad wait 10ms then add .uk-open to #modal">Edit</button></td>
+</tr>

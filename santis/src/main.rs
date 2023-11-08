@@ -23,6 +23,7 @@ async fn main() {
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
+        .route("/list", get(list))
         .nest_service("/assets", ServeDir::new("assets"));
 
     // run our app with hyper, listening globally on port 3000
@@ -35,13 +36,23 @@ async fn main() {
 
 async fn root() -> impl IntoResponse {
     println!("Rendering root");
-    let category_values = Vec::from(["KEEP - Store", "KEEP - Take", "SELL", "DONATE"]);
+    let category_values = Vec::from(["KEEP-Store", "KEEP-Take", "SELL", "DONATE"]);
     let size_values = Vec::from(["SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"]);
     let items_values = vec!["1", "2"];
-    let root = RootTemplate {cats: category_values, items: items_values ,sizes: size_values};
+    let root = RootTemplate {cats: category_values, items: items_values ,sizes: size_values, status_message: ""};
     let render = root.render().unwrap();
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
     (headers, render)
 }
 
+async fn list() -> impl IntoResponse {
+    println!("Rendering list");
+    let item1 = Items { item_id:"1".into(), item_name:"First".into(), category:"Keep".into() };
+    let items = vec![&item1];
+    let list = ListTemplate { items: items };
+    let render = list.render().unwrap();
+    let mut headers = HeaderMap::new();
+    headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
+    (headers, render)
+}
