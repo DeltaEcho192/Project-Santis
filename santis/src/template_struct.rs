@@ -21,6 +21,13 @@ pub struct ListTemplate<'a> {
     pub items: Vec<&'a Items>
 }
 
+#[derive(Template)]
+#[template(path="includes/table_edit.html")]
+pub struct TableEditTemplate<'a> {
+    pub cats: Vec<&'a str>,
+    pub item: &'a Items,
+}
+
 pub struct Items {
     pub item_id: String,
     pub item_name: String,
