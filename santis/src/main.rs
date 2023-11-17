@@ -4,20 +4,17 @@ use axum::{
     http::{StatusCode, HeaderMap},
     response::IntoResponse,
     Json, Router, extract::Path,
-    extract::State
+    extract::{State, path},
+    Form
     
 };
-use tower::ServiceExt;
-use tower_http::{
-    services::{ServeDir, ServeFile},
-    trace::TraceLayer,
-};
+use tower_http::services::ServeDir;
 mod template_struct;
 mod datastructs;
 use template_struct::*;
 use datastructs::*;
 use uuid::Uuid;
-use sqlx::{sqlite::SqliteQueryResult, Sqlite, SqlitePool, Row};
+use sqlx::{SqlitePool, Row};
 
 #[derive(Clone)]
 struct Appstate {
@@ -35,8 +32,8 @@ async fn main() {
         // `GET /` goes to `root`
         .route("/", get(root))
         .route("/list", get(list))
-        .route("/items/:id/edit", get(row_edit))
         .route("/items", post(add_item))
+        .route("/item/:id/edit", get(edit_get))
         .nest_service("/assets", ServeDir::new("assets"))
         .with_state(app);
 
@@ -59,31 +56,20 @@ async fn root() -> impl IntoResponse {
     (headers, render)
 }
 
-async fn add_item(State(state): State<Appstate>, Json(payload): Json<Item>) -> impl IntoResponse {
+async fn add_item(State(state): State<Appstate>, Form(payload): Form<Item>) -> impl IntoResponse {
     let item_id = Uuid::new_v4();
     println!("New item id: {}", item_id);
     println!("Payload: {:?}", payload);
-    let packed:i64 = match payload.packed {
-        PackedDynamic::Int(packed) => packed.try_into().unwrap(),
-        PackedDynamic::String(packed)  => {
-            if packed == "on" {
-                1 
-            } else { 
-                0
-            }
-        }
-    };
-    println!("Packed value {}", packed);
     let sql_query = "INSERT INTO items ('item_id', 'item_name', 'size', 'weight',
     'value', 'packed', 'category', 'sub_category') 
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8);";
     let result = sqlx::query(sql_query)
-        .bind(item_id)
+        .bind(item_id.to_string())
         .bind(payload.item_name)
         .bind(payload.size)
         .bind(payload.weight)
         .bind(payload.value)
-        .bind(packed)
+        .bind(payload.packed.unwrap_or(0))
         .bind(payload.category)
         .bind(payload.sub_category)
         .execute(&state.pool).await;
@@ -100,23 +86,32 @@ async fn add_item(State(state): State<Appstate>, Json(payload): Json<Item>) -> i
     (header_create(), render)
 }
 
-async fn list() -> impl IntoResponse {
-    println!("Rendering list");
-    let item1 = Items { item_id:"1".into(), item_name:"First".into(), category:"Keep".into() };
-    let items = vec![&item1];
-    let list = ListTemplate { items: items };
-    let render = list.render().unwrap();
-    let mut headers = HeaderMap::new();
-    headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
-    (headers, render)
+async fn edit_get(State(state): State<Appstate>, Path(id): Path<Uuid> ) -> impl IntoResponse {
+    println!("{}", id);
+    let category_values = Vec::from(["KEEP-Store", "KEEP-Take", "SELL", "DONATE"]);
+    let sql_query = "SELECT item_id, item_name, category FROM items WHERE item_id=$1";
+    //let sql_query = "SELECT item_id, item_name, category FROM items";
+    let result = sqlx::query_as::<_, ItemEdit>(sql_query)
+        .bind(id.to_string())
+        .fetch_one(&state.pool).await.unwrap();
+
+    println!("{:?}", result.item_id);
+    let edit = TableEditTemplate { cats: category_values, item: &result};
+    let render = edit.render().unwrap();
+    (header_create(), render)
 }
 
-async fn row_edit(Path(item_id): Path<Uuid>) -> impl IntoResponse {
-    println!("Rendering Table edit");
-    let item1 = Items { item_id:"1".into(), item_name:"First".into(), category:"Keep".into() };
-    let category_values = Vec::from(["KEEP-Store", "KEEP-Take", "SELL", "DONATE"]);
-    let edit = TableEditTemplate { cats: category_values, item: &item1 };
-    let render = edit.render().unwrap();
+async fn list(State(state): State<Appstate>) -> impl IntoResponse {
+    println!("Rendering list");
+    let sql_query = "SELECT item_id, item_name, category FROM items";
+    let result:Vec<ItemEdit> = sqlx::query_as::<_, ItemEdit>(sql_query).fetch_all(&state.pool).await.unwrap()
+        .iter().map(|item_row| ItemEdit {
+            item_id: String::from(&item_row.item_id),
+            item_name: String::from(&item_row.item_name),
+            category: String::from(&item_row.category)
+        }).collect();
+    let list = ListTemplate { items: result};
+    let render = list.render().unwrap();
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
     (headers, render)

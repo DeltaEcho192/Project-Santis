@@ -1,5 +1,7 @@
 use askama::Template;
 
+use crate::datastructs::ItemEdit;
+
 #[derive(Template)]
 #[template(path="index.html")]
 pub struct RootTemplate<'a> {
@@ -17,19 +19,14 @@ pub struct EnterMessage<'a> {
 
 #[derive(Template)]
 #[template(path="list.html")]
-pub struct ListTemplate<'a> {
-    pub items: Vec<&'a Items>
+pub struct ListTemplate<> {
+    pub items: Vec<ItemEdit>
 }
 
 #[derive(Template)]
 #[template(path="includes/table_edit.html")]
 pub struct TableEditTemplate<'a> {
     pub cats: Vec<&'a str>,
-    pub item: &'a Items,
+    pub item: &'a ItemEdit,
 }
 
-pub struct Items {
-    pub item_id: String,
-    pub item_name: String,
-    pub category: String
-}
