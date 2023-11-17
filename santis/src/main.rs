@@ -13,7 +13,9 @@ use tower_http::{
     trace::TraceLayer,
 };
 mod template_struct;
+mod datastructs;
 use template_struct::*;
+use datastructs::*;
 use uuid::Uuid;
 use sqlx::{sqlite::SqliteQueryResult, Sqlite, SqlitePool, Row};
 
@@ -34,7 +36,7 @@ async fn main() {
         .route("/", get(root))
         .route("/list", get(list))
         .route("/items/:id/edit", get(row_edit))
-        .route("/test", get(add_item))
+        .route("/items", post(add_item))
         .nest_service("/assets", ServeDir::new("assets"))
         .with_state(app);
 
@@ -57,15 +59,30 @@ async fn root() -> impl IntoResponse {
     (headers, render)
 }
 
-async fn add_item(State(state): State<Appstate>) -> impl IntoResponse {
+async fn add_item(State(state): State<Appstate>, Json(payload): Json<Item>) -> impl IntoResponse {
     let item_id = Uuid::new_v4();
     println!("New item id: {}", item_id);
-    let sql_query = "Select * FROM contacts;";
-    let result = sqlx::query(sql_query).fetch_all(&state.pool).await.unwrap();
-    for (idx, row) in result.iter().enumerate() {
-        println!("[{}]: {:?}", idx, row.get::<String, &str>("first_name"));
-    }
-    
+    let sql_query = "INSERT INTO items ('item_id', 'item_name', 'size', 'weight',
+    'value', 'packed', 'category', 'sub_category') 
+    VALUES ($id, $item_name, $size, $weight, $value, $packed, $category, $sub_category);";
+    let result = sqlx::query(sql_query)
+        .bind(item_id)
+        .bind(payload.item_name)
+        .bind(payload.size)
+        .bind(payload.weight)
+        .bind(payload.value)
+        .bind(payload.packed)
+        .bind(payload.category)
+        .bind(payload.sub_category)
+        .fetch_all(&state.pool).await;
+
+    let succ = match result {
+        Ok(_) => "Success",
+        Err(_) => "Not Successfull"
+    };
+    let rt_mesg = EnterMessage  { status_message: succ };
+    let render = rt_mesg.render().unwrap();
+    (header_create(), render)
 }
 
 async fn list() -> impl IntoResponse {
@@ -88,4 +105,10 @@ async fn row_edit(Path(item_id): Path<Uuid>) -> impl IntoResponse {
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
     (headers, render)
+}
+
+fn header_create() -> HeaderMap {
+    let mut headers = HeaderMap::new();
+    headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
+    headers
 }
