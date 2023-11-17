@@ -62,23 +62,38 @@ async fn root() -> impl IntoResponse {
 async fn add_item(State(state): State<Appstate>, Json(payload): Json<Item>) -> impl IntoResponse {
     let item_id = Uuid::new_v4();
     println!("New item id: {}", item_id);
+    println!("Payload: {:?}", payload);
+    let packed:i64 = match payload.packed {
+        PackedDynamic::Int(packed) => packed.try_into().unwrap(),
+        PackedDynamic::String(packed)  => {
+            if packed == "on" {
+                1 
+            } else { 
+                0
+            }
+        }
+    };
+    println!("Packed value {}", packed);
     let sql_query = "INSERT INTO items ('item_id', 'item_name', 'size', 'weight',
     'value', 'packed', 'category', 'sub_category') 
-    VALUES ($id, $item_name, $size, $weight, $value, $packed, $category, $sub_category);";
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8);";
     let result = sqlx::query(sql_query)
         .bind(item_id)
         .bind(payload.item_name)
         .bind(payload.size)
         .bind(payload.weight)
         .bind(payload.value)
-        .bind(payload.packed)
+        .bind(packed)
         .bind(payload.category)
         .bind(payload.sub_category)
-        .fetch_all(&state.pool).await;
+        .execute(&state.pool).await;
 
     let succ = match result {
         Ok(_) => "Success",
-        Err(_) => "Not Successfull"
+        Err(err) => {
+            println!("Err: {}", err);
+            "Not Successfull"
+        }
     };
     let rt_mesg = EnterMessage  { status_message: succ };
     let render = rt_mesg.render().unwrap();
