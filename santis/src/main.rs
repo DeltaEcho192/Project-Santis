@@ -88,14 +88,17 @@ async fn add_item(State(state): State<Appstate>, Form(payload): Form<Item>) -> i
 
 async fn edit_get(State(state): State<Appstate>, Path(id): Path<Uuid> ) -> impl IntoResponse {
     println!("{}", id);
-    let category_values = Vec::from(["KEEP-Store", "KEEP-Take", "SELL", "DONATE"]);
+    let mut category_values = Vec::from(["KEEP-Store", "KEEP-Take", "SELL", "DONATE"]);
     let sql_query = "SELECT item_id, item_name, category FROM items WHERE item_id=$1";
     //let sql_query = "SELECT item_id, item_name, category FROM items";
     let result = sqlx::query_as::<_, ItemEdit>(sql_query)
         .bind(id.to_string())
         .fetch_one(&state.pool).await.unwrap();
 
-    println!("{:?}", result.item_id);
+    println!("{:?}", result.category);
+    let idx = category_values.iter().position(|&x| x == result.category ).unwrap();
+    category_values.remove(idx);
+    category_values.insert(0, result.category.as_str());
     let edit = TableEditTemplate { cats: category_values, item: &result};
     let render = edit.render().unwrap();
     (header_create(), render)
