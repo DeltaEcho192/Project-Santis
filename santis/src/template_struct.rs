@@ -24,6 +24,12 @@ pub struct ListTemplate<> {
 }
 
 #[derive(Template)]
+#[template(path="includes/search_template.html")]
+pub struct SearchTemplate<> {
+    pub items: Vec<ItemEdit>
+}
+
+#[derive(Template)]
 #[template(path="includes/table_edit.html")]
 pub struct TableEditTemplate<'a> {
     pub cats: Vec<&'a str>,

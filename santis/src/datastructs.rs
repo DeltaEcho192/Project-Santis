@@ -18,12 +18,18 @@ pub struct Item {
 pub struct ItemEdit {
     pub item_id: String,
     pub item_name: String,
-    pub category: String
+    pub category: String,
+    pub box_num: i64
 }
 
 #[derive(sqlx::FromRow, Deserialize, Serialize, Debug)]
 pub struct ItemSave{
     pub item_name: String,
-    pub category: String
+    pub category: String,
+    pub box_num: i64
 }
 
+#[derive(sqlx::FromRow, Deserialize, Serialize, Debug)]
+pub struct Search {
+    pub search: String
+}

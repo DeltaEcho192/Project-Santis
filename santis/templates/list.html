@@ -15,6 +15,19 @@
 		</ul>
 	</div>
 	<div id="table_main">
+		<h3> 
+			Search Items 
+			<span class="htmx-indicator"> 
+				Searching... 
+			</span> 
+		</h3>
+		<input class="form-control" type="search" 
+		name="search" placeholder="Begin Typing To Search Items..." 
+		hx-post="/search" 
+		hx-trigger="input changed delay:500ms, search" 
+		hx-target="#search-results" 
+		hx-indicator=".htmx-indicator">
+
 		<table class="table-row-edit">
 			<thead>
 				<tr>
@@ -23,10 +36,8 @@
 					<th> </th>
 				</tr>
 			</thead>
-			<tbody hx-target="closest tr" hx-swap="outerHTML">
-				{% for item in items %}
-					{% include "includes/table_row.html" %}
-				{% endfor %}
+			<tbody id="search-results" hx-target="closest tr" hx-swap="outerHTML">
+				{% include "includes/search_template.html" %}
 			</tbody>
 		</table>
 	</div>

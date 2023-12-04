@@ -34,6 +34,7 @@ async fn main() {
         .route("/item/:id/edit", get(edit_get))
         .route("/item/:id", put(edit_put))
         .route("/item/:id", delete(edit_delete))
+        .route("/search", post(search_list))
         .nest_service("/assets", ServeDir::new("assets"))
         .with_state(app);
 
@@ -90,7 +91,7 @@ async fn add_item(State(state): State<Appstate>, Form(payload): Form<Item>) -> i
 async fn edit_get(State(state): State<Appstate>, Path(id): Path<Uuid> ) -> impl IntoResponse {
     println!("{}", id);
     let mut category_values = Vec::from(["KEEP-Store", "KEEP-Take", "SELL", "DONATE"]);
-    let sql_query = "SELECT item_id, item_name, category FROM items WHERE item_id=$1";
+    let sql_query = "SELECT item_id, item_name, category, box_num FROM items WHERE item_id=$1";
     //let sql_query = "SELECT item_id, item_name, category FROM items";
     let result = sqlx::query_as::<_, ItemEdit>(sql_query)
         .bind(id.to_string())
@@ -109,16 +110,17 @@ async fn edit_get(State(state): State<Appstate>, Path(id): Path<Uuid> ) -> impl 
 async fn edit_put(State(state): State<Appstate>, Path(id): Path<Uuid>, Form(payload): Form<ItemSave>) -> impl IntoResponse {
     println!("{}", id);
     println!("payload: {:?}", payload);
-    let sql_query = "Update items set item_name=$1, category=$2 WHERE item_id=$3";
+    let sql_query = "Update items set item_name=$1, category=$2, box_num=$3 WHERE item_id=$4";
     let result = sqlx::query(sql_query)
         .bind(&payload.item_name)
         .bind(&payload.category)
+        .bind(payload.box_num)
         .bind(id.to_string())
         .execute(&state.pool).await.unwrap();
 
     println!("{:?}", result);
 
-    let item = ItemEdit { item_id: id.to_string(), item_name: payload.item_name, category: payload.category };
+    let item = ItemEdit { item_id: id.to_string(), item_name: payload.item_name, category: payload.category, box_num: payload.box_num};
     let row = ItemRowTemplate { item: &item};
     let render = row.render().unwrap();
     (header_create(), render)
@@ -137,14 +139,34 @@ async fn edit_delete(State(state): State<Appstate>, Path(id): Path<Uuid>) -> imp
 
 async fn list(State(state): State<Appstate>) -> impl IntoResponse {
     println!("Rendering list");
-    let sql_query = "SELECT item_id, item_name, category FROM items";
+    let sql_query = "SELECT item_id, item_name, category, box_num FROM items";
     let result:Vec<ItemEdit> = sqlx::query_as::<_, ItemEdit>(sql_query).fetch_all(&state.pool).await.unwrap()
         .iter().map(|item_row| ItemEdit {
             item_id: String::from(&item_row.item_id),
             item_name: String::from(&item_row.item_name),
-            category: String::from(&item_row.category)
+            category: String::from(&item_row.category),
+            box_num: item_row.box_num 
         }).collect();
     let list = ListTemplate { items: result};
+    let render = list.render().unwrap();
+    let mut headers = HeaderMap::new();
+    headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
+    (headers, render)
+}
+
+
+async fn search_list(State(state): State<Appstate>, Form(payload): Form<Search>) -> impl IntoResponse {
+    println!("Searching List");
+
+    let sql_query = format!("SELECT item_id, item_name, category, box_num FROM items WHERE item_name LIKE '%{}%'", payload.search);
+    let result:Vec<ItemEdit> = sqlx::query_as::<_, ItemEdit>(sql_query.as_str()).fetch_all(&state.pool).await.unwrap()
+        .iter().map(|item_row| ItemEdit {
+            item_id: String::from(&item_row.item_id),
+            item_name: String::from(&item_row.item_name),
+            category: String::from(&item_row.category),
+            box_num: item_row.box_num 
+        }).collect();
+    let list = SearchTemplate { items: result };
     let render = list.render().unwrap();
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
