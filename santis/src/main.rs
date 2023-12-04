@@ -139,6 +139,9 @@ async fn edit_delete(State(state): State<Appstate>, Path(id): Path<Uuid>) -> imp
 
 async fn list(State(state): State<Appstate>) -> impl IntoResponse {
     println!("Rendering list");
+    let box_sql_query = "SELECT box_num FROM items GROUP BY box_num";
+    let boxes:Vec<i64> = sqlx::query(box_sql_query).fetch_all(&state.pool).await.unwrap().iter().map(|item_row| {item_row.get(0)}).collect();
+    println!("{:?}", boxes);
     let sql_query = "SELECT item_id, item_name, category, box_num FROM items";
     let result:Vec<ItemEdit> = sqlx::query_as::<_, ItemEdit>(sql_query).fetch_all(&state.pool).await.unwrap()
         .iter().map(|item_row| ItemEdit {
@@ -147,7 +150,7 @@ async fn list(State(state): State<Appstate>) -> impl IntoResponse {
             category: String::from(&item_row.category),
             box_num: item_row.box_num 
         }).collect();
-    let list = ListTemplate { items: result};
+    let list = ListTemplate { boxs: boxes, items: result};
     let render = list.render().unwrap();
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
@@ -158,8 +161,8 @@ async fn list(State(state): State<Appstate>) -> impl IntoResponse {
 async fn search_list(State(state): State<Appstate>, Form(payload): Form<Search>) -> impl IntoResponse {
     println!("Searching List");
 
-    let sql_query = format!("SELECT item_id, item_name, category, box_num FROM items WHERE item_name LIKE '%{}%'", payload.search);
-    let result:Vec<ItemEdit> = sqlx::query_as::<_, ItemEdit>(sql_query.as_str()).fetch_all(&state.pool).await.unwrap()
+    let sql_query = format!("SELECT item_id, item_name, category, box_num FROM items WHERE item_name LIKE '%{}%' and box_num=$1", payload.search);
+    let result:Vec<ItemEdit> = sqlx::query_as::<_, ItemEdit>(sql_query.as_str()).bind(payload.box_num).fetch_all(&state.pool).await.unwrap()
         .iter().map(|item_row| ItemEdit {
             item_id: String::from(&item_row.item_id),
             item_name: String::from(&item_row.item_name),
@@ -172,6 +175,11 @@ async fn search_list(State(state): State<Appstate>, Form(payload): Form<Search>)
     headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
     (headers, render)
 }
+
+//async fn sort_list(State(state): State<Appstate>, Form(payload): Form<Sort>) -> impl IntoResponse {
+
+
+//}
 
 fn header_create() -> HeaderMap {
     let mut headers = HeaderMap::new();

@@ -20,7 +20,8 @@ pub struct EnterMessage<'a> {
 #[derive(Template)]
 #[template(path="list.html")]
 pub struct ListTemplate<> {
-    pub items: Vec<ItemEdit>
+    pub items: Vec<ItemEdit>,
+    pub boxs: Vec<i64>
 }
 
 #[derive(Template)]

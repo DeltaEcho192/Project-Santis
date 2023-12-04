@@ -31,5 +31,6 @@ pub struct ItemSave{
 
 #[derive(sqlx::FromRow, Deserialize, Serialize, Debug)]
 pub struct Search {
-    pub search: String
+    pub search: String,
+    pub box_num: i64
 }

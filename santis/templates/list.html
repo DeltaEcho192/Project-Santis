@@ -21,12 +21,21 @@
 				Searching... 
 			</span> 
 		</h3>
-		<input class="form-control" type="search" 
-		name="search" placeholder="Begin Typing To Search Items..." 
+		<form id="form_search" 
 		hx-post="/search" 
-		hx-trigger="input changed delay:500ms, search" 
 		hx-target="#search-results" 
 		hx-indicator=".htmx-indicator">
+
+		<input type="search" name="search" 
+		placeholder="Begin Typing To Search Items..." >
+		<label class="form_label">Box Num</label>
+		<select id="box_num_select" name="box_num">
+			{% for box in boxs %}
+				<option value={{box}}>{{box}}</option>
+			{% endfor %}
+		</select>
+		<button type="submit">Search</button>
+		</form>
 
 		<table class="table-row-edit">
 			<thead>
