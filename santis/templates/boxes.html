@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -15,40 +16,18 @@
 			<li class="Heading"><a>Project Santis</a> </li>
 		</ul>
 	</div>
-	<div id="table_main">
-		<h3> 
-			Search Items 
-			<span class="htmx-indicator"> 
-				Searching... 
-			</span> 
-		</h3>
-		<form id="form_search" 
-		hx-post="/search" 
-		hx-target="#search-results" 
-		hx-indicator=".htmx-indicator">
-
-		<input type="search" name="search" 
-		placeholder="Begin Typing To Search Items..." >
-		<label class="form_label">Box Num</label>
-		<select id="box_num_select" name="box_num">
-			{% for box in boxs %}
-				<option value={{box}}>{{box}}</option>
-			{% endfor %}
-		</select>
-		<button type="submit">Search</button>
-		</form>
-
+	<div id="boxes_main">
+		
 		<table class="table-row-edit">
 			<thead>
 				<tr>
-					<th>Name</th>
-					<th>Category</th>
-					<th>Box Number</th>
+					<th>Box Num</th>
+					<th>Weight</th>
 					<th> </th>
 				</tr>
 			</thead>
-			<tbody id="search-results" hx-target="closest tr" hx-swap="outerHTML">
-				{% include "includes/search_template.html" %}
+			<tbody id="box-results" hx-target="closest tr" hx-swap="outerHTML">
+				{% include "includes/boxes_template.html" %}
 			</tbody>
 		</table>
 	</div>

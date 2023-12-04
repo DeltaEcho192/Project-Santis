@@ -34,3 +34,14 @@ pub struct Search {
     pub search: String,
     pub box_num: i64
 }
+
+#[derive(sqlx::FromRow, Deserialize, Serialize, Debug)]
+pub struct BoxItem {
+    pub box_id: i64,
+    pub weight: i64
+}
+
+#[derive(sqlx::FromRow, Deserialize, Serialize, Debug)]
+pub struct BoxEdit{
+    pub weight: i64
+}

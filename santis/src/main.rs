@@ -30,11 +30,13 @@ async fn main() {
         // `GET /` goes to `root`
         .route("/", get(root))
         .route("/list", get(list))
+        .route("/boxes", get(boxes))
         .route("/items", post(add_item))
         .route("/item/:id/edit", get(edit_get))
         .route("/item/:id", put(edit_put))
         .route("/item/:id", delete(edit_delete))
         .route("/search", post(search_list))
+        .route("/boxes_weight/:id", post(box_weight_edit))
         .nest_service("/assets", ServeDir::new("assets"))
         .with_state(app);
 
@@ -152,9 +154,7 @@ async fn list(State(state): State<Appstate>) -> impl IntoResponse {
         }).collect();
     let list = ListTemplate { boxs: boxes, items: result};
     let render = list.render().unwrap();
-    let mut headers = HeaderMap::new();
-    headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
-    (headers, render)
+    (header_create(), render)
 }
 
 
@@ -171,15 +171,29 @@ async fn search_list(State(state): State<Appstate>, Form(payload): Form<Search>)
         }).collect();
     let list = SearchTemplate { items: result };
     let render = list.render().unwrap();
-    let mut headers = HeaderMap::new();
-    headers.insert("Content-Type", "text/html; charseet=utf-8".parse().unwrap());
-    (headers, render)
+    (header_create(), render)
 }
 
-//async fn sort_list(State(state): State<Appstate>, Form(payload): Form<Sort>) -> impl IntoResponse {
+async fn boxes(State(state): State<Appstate>) -> impl IntoResponse {
+    println!("Getting Boxes");
+    let sql_query = "SELECT box_id, weight FROM boxes";
+    let result:Vec<BoxItem> = sqlx::query_as::<_, BoxItem>(sql_query).fetch_all(&state.pool).await.unwrap();
+    let box_template = BoxesTemplate { items: result };
+    let render = box_template.render().unwrap();
+    (header_create(), render)
+}
 
+async fn box_weight_edit(State(state): State<Appstate>, Path(id): Path<i64>, Form(payload): Form<BoxEdit>) -> impl IntoResponse {
+    println!("Updating Box {}", id);
+    let sql_query = "UPDATE boxes set weight=$1 WHERE box_id=$2";
+    sqlx::query(sql_query).bind(payload.weight).bind(id.to_string())
+        .execute(&state.pool).await.unwrap();
+    let box_update = BoxItem { box_id: id, weight: payload.weight };
+    let box_row = BoxRowTemplate { item: &box_update };
+    let render = box_row.render().unwrap();
+    (header_create(), render)
+}
 
-//}
 
 fn header_create() -> HeaderMap {
     let mut headers = HeaderMap::new();
