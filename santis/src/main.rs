@@ -23,8 +23,6 @@ struct Appstate {
 
 #[tokio::main]
 async fn main() {
-    // initialize tracing
-    tracing_subscriber::fmt::init();
     let pool = SqlitePool::connect("santis.db").await.unwrap();
     let app = Appstate {pool: pool};
     // build our application with a route
@@ -61,8 +59,8 @@ async fn add_item(State(state): State<Appstate>, Form(payload): Form<Item>) -> i
     println!("New item id: {}", item_id);
     println!("Payload: {:?}", payload);
     let sql_query = "INSERT INTO items ('item_id', 'item_name', 'size', 'weight',
-    'value', 'packed', 'category', 'sub_category') 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8);";
+    'value', 'packed', 'category', 'sub_category', 'box_num') 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);";
     let result = sqlx::query(sql_query)
         .bind(item_id.to_string())
         .bind(payload.item_name)
@@ -72,6 +70,7 @@ async fn add_item(State(state): State<Appstate>, Form(payload): Form<Item>) -> i
         .bind(payload.packed.unwrap_or(0))
         .bind(payload.category)
         .bind(payload.sub_category)
+        .bind(payload.box_num.unwrap_or(0))
         .execute(&state.pool).await;
 
     let succ = match result {

@@ -10,7 +10,8 @@ pub struct Item {
     pub value: i64, 
     pub packed: Option<i64>,
     pub category: String,
-    pub sub_category: String
+    pub sub_category: String,
+    pub box_num: Option<i64>
 }
 
 #[derive(sqlx::FromRow, Deserialize, Serialize, Debug)]

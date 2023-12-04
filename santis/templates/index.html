@@ -20,14 +20,6 @@
 					<input id="item_name" name="item_name", placeholder="Item_name" onkeypress="return tabE(this,event)">
 				</div>
 			</div>
-			<div class="form_input" id="cat">
-				<label class="form_label">Size</label>
-				<select id="size" form="item_add" name="size" >
-					{% for i in sizes %}
-						<option value={{i}}>{{i}}</option>
-					{% endfor %}
-				</select>
-			</div>
 			<div class="form_input">
 				<div class="label">
 					<label class="form_label">Item Weight</label>
@@ -40,11 +32,31 @@
 					<input id="value" name="value", placeholder="Value" onkeypress="return tabE(this,event)">
 				</div>
 			</div>
+			<div class="form_input">
+				<div class="label">
+					<label class="form_label">Sub Category</label>
+					<input id="sub_cat" name="sub_category", placeholder="Sub-Category" onkeypress="return tabE(this,event)">
+				</div>
+			</div>
+			<div class="form_input">
+				<div class="label">
+					<label class="form_label">Box Num</label>
+					<input id="box_num" name="box_num", placeholder="Box Num" value="0" onkeypress="return tabE(this,event)">
+				</div>
+			</div>
 			<div class="form_input" id="packedin">
 					<label class="form_label">Packed</label>
 					<div id="packed_around">
 						<input id="packed" name="packed" type="checkbox" placeholder="Packed" value='1' onkeypress="return tabE(this,event)">
 					</div>
+			</div>
+			<div class="form_input" id="cat">
+				<label class="form_label">Size</label>
+				<select id="size" form="item_add" name="size" >
+					{% for i in sizes %}
+					<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
 			</div>
 			<div class="form_input" id="cat">
 				<label class="form_label">Category</label>
@@ -53,12 +65,6 @@
 						<option value={{cat}}>{{cat}}</option>
 					{% endfor %}
 				</select>
-			</div>
-			<div class="form_input">
-				<div class="label">
-					<label class="form_label">Sub Category</label>
-					<input id="sub_cat" name="sub_category", placeholder="Sub-Category" onkeypress="return tabE(this,event)">
-				</div>
 			</div>
 			<button class="edit-button">Add Item</button>
 		</form>
