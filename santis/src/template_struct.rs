@@ -30,3 +30,8 @@ pub struct TableEditTemplate<'a> {
     pub item: &'a ItemEdit,
 }
 
+#[derive(Template)]
+#[template(path="includes/table_row.html")]
+pub struct ItemRowTemplate<'a> {
+    pub item: &'a ItemEdit
+}

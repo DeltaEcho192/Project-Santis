@@ -1,6 +1,6 @@
 use askama::Template;
 use axum::{
-    routing::{get, post},
+    routing::{get, post, put, delete},
     http::{StatusCode, HeaderMap},
     response::IntoResponse,
     Json, Router, extract::Path,
@@ -32,6 +32,8 @@ async fn main() {
         .route("/list", get(list))
         .route("/items", post(add_item))
         .route("/item/:id/edit", get(edit_get))
+        .route("/item/:id", put(edit_put))
+        .route("/item/:id", delete(edit_delete))
         .nest_service("/assets", ServeDir::new("assets"))
         .with_state(app);
 
@@ -101,6 +103,36 @@ async fn edit_get(State(state): State<Appstate>, Path(id): Path<Uuid> ) -> impl 
     let edit = TableEditTemplate { cats: category_values, item: &result};
     let render = edit.render().unwrap();
     (header_create(), render)
+}
+
+
+async fn edit_put(State(state): State<Appstate>, Path(id): Path<Uuid>, Form(payload): Form<ItemSave>) -> impl IntoResponse {
+    println!("{}", id);
+    println!("payload: {:?}", payload);
+    let sql_query = "Update items set item_name=$1, category=$2 WHERE item_id=$3";
+    let result = sqlx::query(sql_query)
+        .bind(&payload.item_name)
+        .bind(&payload.category)
+        .bind(id.to_string())
+        .execute(&state.pool).await.unwrap();
+
+    println!("{:?}", result);
+
+    let item = ItemEdit { item_id: id.to_string(), item_name: payload.item_name, category: payload.category };
+    let row = ItemRowTemplate { item: &item};
+    let render = row.render().unwrap();
+    (header_create(), render)
+}
+
+async fn edit_delete(State(state): State<Appstate>, Path(id): Path<Uuid>) -> impl IntoResponse {
+    println!("{}", id);
+    let sql_query = "DELETE FROM items WHERE item_id=$1";
+    let result = sqlx::query(sql_query)
+        .bind(id.to_string())
+        .execute(&state.pool).await.unwrap();
+
+    println!("{:?}", result);
+    (header_create(), "")
 }
 
 async fn list(State(state): State<Appstate>) -> impl IntoResponse {

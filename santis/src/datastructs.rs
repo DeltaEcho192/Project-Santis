@@ -21,3 +21,9 @@ pub struct ItemEdit {
     pub category: String
 }
 
+#[derive(sqlx::FromRow, Deserialize, Serialize, Debug)]
+pub struct ItemSave{
+    pub item_name: String,
+    pub category: String
+}
+

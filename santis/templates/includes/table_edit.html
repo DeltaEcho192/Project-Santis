@@ -22,7 +22,7 @@
 				hx-target="{{"#p{}"|format(item.item_id)}}" 
 				hx-swap="outerHTML"
 				_="on htmx:afterOnLoad wait 10ms then remove #modal"
-				>Save</button>
+				>DELETE</button>
 			<button id="cancelButton" type="button" class="uk-button uk-button-default"
 				_="on click take .uk-open from #modal wait 200ms then remove #modal"> Close</button>
 		</form>
