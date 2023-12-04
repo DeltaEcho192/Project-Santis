@@ -1,0 +1,4 @@
+<tr id="{{"p{}"|format(item.box_id)}}" >
+	<td>{{ item.box_id}}</td>	
+	<td><input name="weight" placeholder={{item.weight}} hx-post="{{"/boxes_weight/{}"|format(item.box_id)}}" hx-trigger="input changed delay:500ms, weight"> </td>	
+</tr>

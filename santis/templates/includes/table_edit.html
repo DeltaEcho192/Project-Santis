@@ -1,0 +1,31 @@
+<div id="modal" class="uk-modal" style="display:block;">
+	<div class="uk-modal-dialog uk-modal-body">
+		<h2 class="uk-modal-title">Update Dialog</h2>
+		<p> Update Items Values </p>
+		<form _="on submit take .uk-open from #modal">
+			<div class="uk-margin">
+				<input class="uk-input" placeholder="Item Name" value='{{ item.item_name }}' name="item_name">
+				<input class="uk-input" placeholder="Box Num" value='{{ item.box_num}}' name="box_num">
+				<select id="category" name="category">
+					{% for cat in cats%}
+						<option value={{cat}}>{{cat}}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<button type="button" class="uk-button uk-button-primary" 
+				hx-put="{{"/item/{}"|format(item.item_id)}}" 
+				hx-target="{{"#p{}"|format(item.item_id)}}" 
+				hx-swap="outerHTML"
+				_="on htmx:afterOnLoad wait 10ms then remove #modal"
+				>Save</button>
+			<button type="button" class="uk-button uk-button-primary" 
+				hx-delete="{{"/item/{}"|format(item.item_id)}}" 
+				hx-target="{{"#p{}"|format(item.item_id)}}" 
+				hx-swap="outerHTML"
+				_="on htmx:afterOnLoad wait 10ms then remove #modal"
+				>DELETE</button>
+			<button id="cancelButton" type="button" class="uk-button uk-button-default"
+				_="on click take .uk-open from #modal wait 200ms then remove #modal"> Close</button>
+		</form>
+	</div>
+</div>

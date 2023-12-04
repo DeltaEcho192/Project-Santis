@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>Project Santis </title>
+		<link rel="stylesheet" href="assets/css/app.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto"></head>
+<body>
+	<div>
+		<ul>
+			<li><a href="/" >Home</a> </li>
+			<li><a href="/list" >List</a> </li>
+			<li><a href="/boxes" >Box</a> </li>
+			<li class="Heading"><a>Project Santis</a> </li>
+		</ul>
+	</div>
+	<div id="container">
+		<form id="item_add" hx-post="/items", hx-target="#status" >
+			<div class="form_input">
+				<div class="label">
+					<label class="form_label">Item Name</label>
+					<input id="item_name" name="item_name", placeholder="Item_name" onkeypress="return tabE(this,event)">
+				</div>
+			</div>
+			<div class="form_input">
+				<div class="label">
+					<label class="form_label">Item Weight</label>
+					<input id="weight" name="weight", placeholder="Weight" onkeypress="return tabE(this,event)">
+				</div>
+			</div>
+			<div class="form_input">
+				<div class="label">
+					<label class="form_label">Item Value</label>
+					<input id="value" name="value", placeholder="Value" onkeypress="return tabE(this,event)">
+				</div>
+			</div>
+			<div class="form_input">
+				<div class="label">
+					<label class="form_label">Sub Category</label>
+					<input id="sub_cat" name="sub_category", placeholder="Sub-Category" onkeypress="return tabE(this,event)">
+				</div>
+			</div>
+			<div class="form_input">
+				<div class="label">
+					<label class="form_label">Box Num</label>
+					<input id="box_num" name="box_num", placeholder="Box Num" value="0" onkeypress="return tabE(this,event)">
+				</div>
+			</div>
+			<div class="form_input" id="packedin">
+					<label class="form_label">Packed</label>
+					<div id="packed_around">
+						<input id="packed" name="packed" type="checkbox" placeholder="Packed" value='1' onkeypress="return tabE(this,event)">
+					</div>
+			</div>
+			<div class="form_input" id="cat">
+				<label class="form_label">Size</label>
+				<select id="size" form="item_add" name="size" >
+					{% for i in sizes %}
+					<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="form_input" id="cat">
+				<label class="form_label">Category</label>
+				<select id="category" form="item_add" name="category" onkeypress="return tabE(this,event)">
+					{% for cat in cats%}
+						<option value={{cat}}>{{cat}}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<button class="edit-button">Add Item</button>
+		</form>
+	</div>
+	<div id="status">
+		{% include "enter_message.html" %}
+	</div>
+</body>
+
+<script src="https://unpkg.com/htmx.org@1.3.1"></script>
+<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+<script src="assets/script.js"></script>
+</html>
+
