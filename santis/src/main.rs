@@ -124,6 +124,18 @@ async fn edit_get(State(state): State<Appstate>, Path(id): Path<Uuid> ) -> impl 
 async fn edit_put(State(state): State<Appstate>, Path(id): Path<Uuid>, Form(payload): Form<ItemSave>) -> impl IntoResponse {
     println!("{}", id);
     println!("payload: {:?}", payload);
+    let box_check = "SELECT 1 FROM boxes WHERE box_id = $1 ";
+    let ans = sqlx::query_scalar::<_, i64>(box_check).bind(payload.box_num).fetch_one(&state.pool).await;
+    println!("{:?}", ans);
+    match ans {
+        Ok(_) => {
+            println!("Box already exists");
+        },
+        Err(_) => {
+            let box_enter = "INSERT INTO boxes ('box_id', 'weight') VALUES ($1, 0)";
+            sqlx::query(box_enter).bind(payload.box_num).execute(&state.pool).await.unwrap();
+        }
+    }
     let sql_query = "Update items set item_name=$1, category=$2, box_num=$3 WHERE item_id=$4";
     let result = sqlx::query(sql_query)
         .bind(&payload.item_name)
@@ -224,7 +236,6 @@ async fn box_weight_edit(State(state): State<Appstate>, Path(id): Path<i64>, For
     let render = box_row.render().unwrap();
     (header_create(), render)
 }
-
 
 fn header_create() -> HeaderMap {
     let mut headers = HeaderMap::new();
