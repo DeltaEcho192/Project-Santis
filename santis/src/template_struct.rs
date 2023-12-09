@@ -28,6 +28,7 @@ pub struct ListTemplate<> {
 #[derive(Template)]
 #[template(path="boxes.html")]
 pub struct BoxesTemplate<> {
+    pub weight: f64,
     pub items: Vec<BoxItem>
 }
 

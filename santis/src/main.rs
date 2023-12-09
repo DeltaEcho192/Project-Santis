@@ -178,7 +178,9 @@ async fn boxes(State(state): State<Appstate>) -> impl IntoResponse {
     println!("Getting Boxes");
     let sql_query = "SELECT box_id, weight FROM boxes";
     let result:Vec<BoxItem> = sqlx::query_as::<_, BoxItem>(sql_query).fetch_all(&state.pool).await.unwrap();
-    let box_template = BoxesTemplate { items: result };
+    let weight_query = "SELECT SUM(weight) as weight FROM boxes";
+    let total_weight = sqlx::query_as::<_, BoxEdit>(weight_query).fetch_one(&state.pool).await.unwrap();
+    let box_template = BoxesTemplate { items: result ,weight: total_weight.weight};
     let render = box_template.render().unwrap();
     (header_create(), render)
 }
