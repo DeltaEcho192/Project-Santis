@@ -63,6 +63,18 @@ async fn add_item(State(state): State<Appstate>, Form(payload): Form<Item>) -> i
     let item_id = Uuid::new_v4();
     println!("New item id: {}", item_id);
     println!("Payload: {:?}", payload);
+    let box_check = "SELECT 1 FROM boxes WHERE box_id = $1 ";
+    let ans = sqlx::query_scalar::<_, i64>(box_check).bind(payload.box_num.unwrap_or(0)).fetch_one(&state.pool).await;
+    println!("{:?}", ans);
+    match ans {
+        Ok(_) => {
+            println!("Box already exists");
+        },
+        Err(_) => {
+            let box_enter = "INSERT INTO boxes ('box_id', 'weight') VALUES ($1, 0)";
+            sqlx::query(box_enter).bind(payload.box_num.unwrap()).execute(&state.pool).await.unwrap();
+        }
+    }
     let sql_query = "INSERT INTO items ('item_id', 'item_name', 'size', 'weight',
     'value', 'packed', 'category', 'sub_category', 'box_num') 
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);";
@@ -130,6 +142,16 @@ async fn edit_put(State(state): State<Appstate>, Path(id): Path<Uuid>, Form(payl
 
 async fn edit_delete(State(state): State<Appstate>, Path(id): Path<Uuid>) -> impl IntoResponse {
     println!("{}", id);
+    let box_check = "SELECT COUNT(item_id) FROM items WHERE box_num=(SELECT box_num FROM items WHERE item_id=$1)";
+    let amt_items = sqlx::query_scalar::<_, i64>(box_check).bind(id.to_string()).fetch_one(&state.pool).await.unwrap();
+    println!("{}", amt_items);
+    if amt_items <= 1 {
+        let sql_query = "DELETE FROM boxes WHERE box_id=(SELECT box_num FROM items WHERE item_id=$1)";
+        let res = sqlx::query(sql_query)
+            .bind(id.to_string())
+            .execute(&state.pool).await.unwrap();
+        println!("Deleting box {:?}", res);
+    }
     let sql_query = "DELETE FROM items WHERE item_id=$1";
     let result = sqlx::query(sql_query)
         .bind(id.to_string())
@@ -142,7 +164,8 @@ async fn edit_delete(State(state): State<Appstate>, Path(id): Path<Uuid>) -> imp
 async fn list(State(state): State<Appstate>) -> impl IntoResponse {
     println!("Rendering list");
     let box_sql_query = "SELECT box_num FROM items GROUP BY box_num";
-    let boxes:Vec<i64> = sqlx::query(box_sql_query).fetch_all(&state.pool).await.unwrap().iter().map(|item_row| {item_row.get(0)}).collect();
+    let mut boxes:Vec<i64> = sqlx::query(box_sql_query).fetch_all(&state.pool).await.unwrap().iter().map(|item_row| {item_row.get(0)}).collect();
+    boxes.push(-1);
     println!("{:?}", boxes);
     let sql_query = "SELECT item_id, item_name, category, box_num FROM items";
     let result:Vec<ItemEdit> = sqlx::query_as::<_, ItemEdit>(sql_query).fetch_all(&state.pool).await.unwrap()
@@ -161,7 +184,13 @@ async fn list(State(state): State<Appstate>) -> impl IntoResponse {
 async fn search_list(State(state): State<Appstate>, Form(payload): Form<Search>) -> impl IntoResponse {
     println!("Searching List");
 
-    let sql_query = format!("SELECT item_id, item_name, category, box_num FROM items WHERE item_name LIKE '%{}%' and box_num=$1", payload.search);
+    let sql_query;
+    if payload.box_num != -1 {
+        sql_query = format!("SELECT item_id, item_name, category, box_num FROM items WHERE item_name LIKE '%{}%' and box_num=$1", payload.search);
+    } else {
+        sql_query = format!("SELECT item_id, item_name, category, box_num FROM items WHERE item_name LIKE '%{}%'", payload.search);
+    }
+
     let result:Vec<ItemEdit> = sqlx::query_as::<_, ItemEdit>(sql_query.as_str()).bind(payload.box_num).fetch_all(&state.pool).await.unwrap()
         .iter().map(|item_row| ItemEdit {
             item_id: String::from(&item_row.item_id),
@@ -179,8 +208,8 @@ async fn boxes(State(state): State<Appstate>) -> impl IntoResponse {
     let sql_query = "SELECT box_id, weight FROM boxes";
     let result:Vec<BoxItem> = sqlx::query_as::<_, BoxItem>(sql_query).fetch_all(&state.pool).await.unwrap();
     let weight_query = "SELECT SUM(weight) as weight FROM boxes";
-    let total_weight = sqlx::query_as::<_, BoxEdit>(weight_query).fetch_one(&state.pool).await.unwrap();
-    let box_template = BoxesTemplate { items: result ,weight: total_weight.weight};
+    let total_weight = sqlx::query_scalar::<_, f64>(weight_query).fetch_one(&state.pool).await.unwrap();
+    let box_template = BoxesTemplate { items: result ,weight: total_weight};
     let render = box_template.render().unwrap();
     (header_create(), render)
 }
